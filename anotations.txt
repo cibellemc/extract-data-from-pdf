@@ -1,0 +1,20 @@
+Instalação: 0018330860
+Esp. Medidor Cte. %FP Leit. Anterior Leit. Atual Medido Faturado
+CAT 17040139907 1,00 0,00 7.117,00 7.514,00 397,00
+
+
+Instalação: 0017826446
+Esp. Medidor Cte. %FP Leit. Anterior Leit. Atual Medido Faturado
+CAT 17040276491 1,00 0,00 681,00 699,00 18,00
+
+
+lê as páginas de baixo para cima
+cada página é 2
+ignorar página 1
+
+transformar em txt
+ler as linhas específicas com open
+criar o dicionário de dados com pandas
+
+[linha 10
+linha variável]

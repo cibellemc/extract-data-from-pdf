@@ -7,10 +7,9 @@ number_of_pages = len(reader.pages)
 
 # função pra transformar em arquivo txt
 with open("myfile.txt", "w") as output_file:
-    for page_num in range(1, number_of_pages - 2):
+    for page_num in range(1, 2):
         page = reader.pages[page_num]
         text = page.extract_text()
-        print(text)
         output_file.write(text)
 
 instalacoes = []
@@ -24,13 +23,19 @@ with open('myfile.txt', 'r') as f:
         line = lines[i]
 
         if "Instalação" in line:
-            print(line.strip())
-            instalacoes.append(line.strip())
+            info = line.split()[1]
+            print(info)
+            # print(line.strip())
+            instalacoes.append(info)
+
 
         if "ValorCAT" in line:
             # Encontrou a linha, salva a próxima linha
             if i + 1 < len(lines):
-                print(line.strip())
+                info = line.split()[7]
+                info = line.split()[8]
+                info = line.split()[9]
+                # print(lines[i + 1].strip())
                 valores.append(line.strip())
 
 

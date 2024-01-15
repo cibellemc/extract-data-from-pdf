@@ -1,48 +1,57 @@
+from datetime import date
+import pdfplumber
+import pandas as pd
 from PyPDF2 import PdfReader
 
 reader = PdfReader("fatura.pdf")
 
 # quantidade de páginas do documento
-number_of_pages = len(reader.pages)
+numero_de_paginas = len(reader.pages)
 
-# função pra transformar em arquivo txt
-with open("myfile.txt", "w") as output_file:
-    for page_num in range(1, 2):
+# listas para armazenar os dados
+data = []
+instalacoes = []
+
+# transformar pdf em txt
+with open("fatura.txt", "w", encoding='UTF-8') as output_file:
+    for page_num in range(1, numero_de_paginas - 2):
         page = reader.pages[page_num]
         text = page.extract_text()
         output_file.write(text)
 
-instalacoes = []
-valores = []
-
-# função pra printar a linha depois do cabeçalho de valor faturado e a instalação
-with open('myfile.txt', 'r') as f:
+# extrair informações do arquivo txt
+with open('fatura.txt', 'r', encoding='UTF-8') as f:
     lines = f.readlines()
 
     for i in range(len(lines)):
         line = lines[i]
 
         if "Instalação" in line:
-            info = line.split()[1]
-            print(info)
-            # print(line.strip())
-            instalacoes.append(info)
+            info_instalacao = line.split()[1]
+            instalacoes.append(info_instalacao)
 
+# função para extrair informações do arquivo PDF
+with pdfplumber.open("fatura.pdf") as pdf:
+    for page_num in range(1, numero_de_paginas - 2):
+        first_page = pdf.pages[page_num]
+        text = first_page.extract_text()
+        
+        lines = text.split('\n')
+        for line in lines:
+            if "CAT" in line:
+                leitura_anterior = line.split()[4]
+                leitura_atual = line.split()[5]
+                medido = line.split()[6]
 
-        if "ValorCAT" in line:
-            # Encontrou a linha, salva a próxima linha
-            if i + 1 < len(lines):
-                info = line.split()[7]
-                info = line.split()[8]
-                info = line.split()[9]
-                # print(lines[i + 1].strip())
-                valores.append(line.strip())
+                # adiciona as informações à lista de dados
+                data.append({
+                    'Instalação': instalacoes[-1],
+                    'Leit.Anterior': leitura_anterior,
+                    'Leit.Atual': leitura_atual,
+                    'Medido': medido
+                })
 
+df = pd.DataFrame(data)
 
-with open('instalacoes.txt', 'w', encoding='UTF-8') as output_file:
-    for linha in instalacoes:
-        output_file.write(f"{linha}\n")
-
-with open('valores_faturados.txt', 'w', encoding='UTF-8') as output_file:
-    for linha in valores:
-        output_file.write(f"{linha}\n")
+data_atual = date.today().strftime("%Y-%m-%d") 
+df.to_excel('fatura_' + str(data_atual) + '.xlsx', index=None)

@@ -1,5 +1,5 @@
 from datetime import date
-import io
+import os
 import re
 import pdfplumber
 import pandas as pd
@@ -16,9 +16,9 @@ def get_fatura():
 
 @app.route("/pdfconverter", methods=('GET', 'POST'))
 def converter():
+    # obtem conteudo do input com name='fatura'
     pdf_file = request.files['fatura']
-    #pdf_file = request.form.get['fatura']
-    print(type(pdf_file))
+
     reader = PdfReader(pdf_file)
 
     # quantidade de páginas do documento
@@ -28,6 +28,8 @@ def converter():
     data = []
     instalacoes = []
     valores = []
+
+    # input para controle de arrays independentes
     index = -1
 
     # transformar pdf em txt
@@ -58,7 +60,6 @@ def converter():
                     valores.append(resultado[1])
                     
 
-    # função para extrair informações do arquivo PDF
     with pdfplumber.open(pdf_file) as pdf:
         for page_num in range(1, numero_de_paginas - 2):
             first_page = pdf.pages[page_num]
@@ -88,19 +89,10 @@ def converter():
 
     df.to_excel('static/' + nome_arquivo, index=None)
 
+    # exclui o arquivo txt gerado no início
+    os.remove("fatura.txt")
+    
     return redirect(url_for('static', filename=nome_arquivo))
 
-    #return render_template('download.html')
-
-@app.route('/return-files/')
-def return_files_tut():
-    try:
-        fatura = 'fatura_' + str(date.today().strftime("%Y-%m-%d") ) + '.xlsx'
-        buf_str = io.StringIO(fatura)
-
-        return send_file(io.BytesIO(buf_str.read().encode("utf-8")), mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", download_name='fatura')
-    except Exception as e:
-        return str(e)
-    
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8081,debug=True) 

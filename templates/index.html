@@ -1,18 +1,52 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Extração de dados</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/index.css' )}}">
+    <style>
+        #loading {
+            display: none;
+        }
+    </style>
 </head>
+
 <body>
-    <form action="pdfconverter" method="post" enctype="multipart/form-data">
-        <label>Selecione a fatura</label>
-        <br><br>
-        <input type="file" id="fatura" name="fatura"></input>
-        <br><br>
-        <input type="submit" value="Carregar">
-        
-    </form>
+    <div id="loading">
+        <h1>Aguarde!</h1>
+        <h2>Você será redirecionado após conclusão do download.</h2>
+    </div>
+
+    <div id="content">
+        <form action="pdfconverter" method="post" enctype="multipart/form-data" onsubmit="loading()">
+            <h1>Extrator de informações de fatura</h1>
+            <h2>Obtenha o mais relevante do seu documento</h2>
+            <input type="file" id="fatura" name="fatura"></input>
+            <br><br>
+            <input type="submit" value="Carregar">
+        </form>
+    </div>
 </body>
+
+<script>
+    function loading() {
+        div_loading = document.getElementById('loading')
+        div_content = document.getElementById('content')
+
+        div_loading.style.display = 'block'
+        div_content.style.display = 'none'
+    }
+
+    function processarPdf() {
+            formData = new FormData(document.getElementById('formPdf'));
+
+            fetch('/pdfconverter', {
+                method: 'POST',
+                body: formData
+            })
+            .then(() => window.location.href = '/')
+        }
+    </script>
 </html>

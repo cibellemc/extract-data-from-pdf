@@ -5,7 +5,7 @@ import pdfplumber
 import pandas as pd
 from PyPDF2 import PdfReader
 
-from flask import Flask, render_template, request, send_file
+from flask import Flask, redirect, render_template, request, send_file, url_for
 
 app = Flask(__name__)
 
@@ -84,15 +84,21 @@ def converter():
     df = pd.DataFrame(data)
 
     data_atual = date.today().strftime("%Y-%m-%d") 
-    arquivo = df.to_excel('fatura_' + str(data_atual) + '.xlsx', index=None)
-    return render_template('download.html')
+    nome_arquivo = 'fatura_' + str(data_atual) + '.xlsx'
+
+    df.to_excel('static/' + nome_arquivo, index=None)
+
+    return redirect(url_for('static', filename=nome_arquivo))
+
+    #return render_template('download.html')
 
 @app.route('/return-files/')
 def return_files_tut():
     try:
         fatura = 'fatura_' + str(date.today().strftime("%Y-%m-%d") ) + '.xlsx'
         buf_str = io.StringIO(fatura)
-        return send_file(io.BytesIO(buf_str.read().encode("utf-8")), mimetype="application/pdf", download_name=fatura )
+
+        return send_file(io.BytesIO(buf_str.read().encode("utf-8")), mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", download_name='fatura')
     except Exception as e:
         return str(e)
     
